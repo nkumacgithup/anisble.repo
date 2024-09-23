@@ -27,7 +27,7 @@
       - Start Nginx
       - Start MariaDB
       - wget
-      - htop
+      
 
     # Start and enable MariaDB service
   - name: Start and enable MariaDB service
