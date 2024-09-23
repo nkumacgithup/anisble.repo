@@ -39,12 +39,20 @@
     # Configure Nginx index.html with custom text
   - name: Create custom index.html
     copy:
-      content: "This is my first webpage"
+      content: "Welcome to the nkumaco web page testing........"
       dest: /usr/share/nginx/html/index.html
       owner: nginx
       group: nginx
     notify:
       - Restart Nginx
+  - name: start and update the firewalld
+    firewalld:
+      name: '{{ item }}'
+      port:
+        - '80/tcp'
+        - '3360/tcp'
+      enable: true
+      permanent: yes
 
     # Create users with roles
   - name: Create users and add to roles
