@@ -1,0 +1,82 @@
+---
+- name: Install and Configure Nginx, MariaDB, Firewall, and Users
+  hosts: all
+  become: yes
+
+  vars:
+    users:
+      - { name: "nadine", role: "manager" }
+      - { name: "nadia", role: "lawyer" }
+      - { name: "emmanuel", role: "sport coordinator" }
+
+  tasks:
+    # Ensure firewalld is installed (in case it's missing)
+  - name: Install firewalld if not already installed
+    package:
+      name: firewalld
+      state: present
+
+    # Install Nginx and MariaDB
+  - name: Install Nginx and MariaDB
+    package:
+      name:
+        - nginx
+        - mariadb-server
+      state: present
+    notify:
+      - Start Nginx
+      - Start MariaDB
+
+    # Start and enable MariaDB service
+  - name: Start and enable MariaDB service
+    service:
+      name: mariadb
+      state: started
+      enabled: yes
+
+    # Configure Nginx index.html with custom text
+  - name: Create custom index.html
+    copy:
+      content: "This is my first webpage"
+      dest: /usr/share/nginx/html/index.html
+      owner: nginx
+      group: nginx
+    notify:
+      - Restart Nginx
+
+    # Create users with roles
+  - name: Create users and add to roles
+    user:
+      name: "{{ item.name }}"
+      state: present
+    loop: "{{ users }}"
+
+  - name: Create a role file for each user
+    copy:
+      content: "Role: {{ item.role }}"
+      dest: "/home/{{ item.name }}/role.txt"
+    loop: "{{ users }}"
+
+  handlers:
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Start MariaDB
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
