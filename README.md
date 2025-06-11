@@ -1,2 +1,2 @@
 # anisble.repo
-# Install nginx on allthe western server
+# Install nginx on all the Western servers
